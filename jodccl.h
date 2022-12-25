@@ -226,13 +226,15 @@ JCLError jcl_parse_args(char **argv) {
       break;
     }
     case JCL_INT: {
-      errno = 0;
-      int integer = (int)strtol(parsed_arg, NULL,
-                                10); // use strol for error handling
-      if (errno != 0) {              // conversion failed
-        RET_ERROR(JCL_PARSE_WRONG_TYPE, (size_t)index);
+      // test if its an integer
+      char c;
+      char *temp = parsed_arg;
+      while ((c = *temp++) != '\0') {
+        if (c < 0x30 || c > 0x39) // see if its in digit range
+          RET_ERROR(JCL_PARSE_WRONG_TYPE, (size_t)index);
       }
-      *(int *)f->data = integer;
+
+      *(int *)f->data = atoi(parsed_arg);
       break;
     }
     case JCL_STRING: {
